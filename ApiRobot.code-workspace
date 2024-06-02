@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "ApiRobot"
+		},
+		{
+			"path": "client-robot"
+		},
+		{
+			"path": "my-app"
+		}
+	],
+	"settings": {}
+}
