@@ -5,7 +5,7 @@ const { clientService } = require('./client.service');
 const ClientStatus = require('../enum/ClientStatus');
 
 // In-memory object to track history creation in the current session
-let createdHistories = {};
+
 
 // Create a WebSocket server
 const wss = new WebSocket.Server({ port: envirement.ws.port, host: envirement.ws.hostname });
@@ -57,7 +57,7 @@ function recieveData(message, sender) {
     if (!data.hasOwnProperty('content')) { sender.send("error: cannot foud property content "); return; }
     if (data.mode == "data") {
 
-      historyService.insert(data.content, createdHistories).then(response => { console.log(response); }).catch(error => { console.error(error); });
+      historyService.insert(data.content).then(response => { console.log(response); }).catch(error => { console.error(error); });
 
       sendData(sender, data);
       sendDataToUsers(data);
@@ -88,7 +88,7 @@ wss.on('connection', function connection(ws) {
   // Event handler when a client disconnects
   ws.on('close', function close() {
     console.log('Client disconnected');
-    createdHistories = {}
+    // createdHistories = {}
     const clientDisconnected = clientService.selectBySocket(ws);
     sendDataToUsers({
       username: clientDisconnected.username,

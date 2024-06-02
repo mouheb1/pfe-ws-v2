@@ -31,6 +31,7 @@ const getRobotStats = async (query) => {
 
 const getAllHistory = async ({ search }) => {
   try {
+    console.log('search', search);
     let getHistoryUrl = `${process.env.REACT_APP_BACKEND_BASE_URL}/history`
     if (search) {
       getHistoryUrl = [getHistoryUrl, `search=${search}`].join('?')

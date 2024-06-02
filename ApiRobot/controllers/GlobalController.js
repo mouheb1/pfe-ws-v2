@@ -27,7 +27,6 @@ exports.getAllLengthCollections = async (req, res) => {
       piecesPalatizes += parseFloat(hitory.palatizedPieces);
     });  //kol piéce palatize ya5dhha men history tetzad fel pieces palatizé
     //==> odkhol lel modele tw tefhm
-
     return res.json({
       countRobots: clientService.selectAllRobots().length,
       robotsReference:

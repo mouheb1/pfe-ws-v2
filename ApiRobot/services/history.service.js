@@ -4,8 +4,9 @@ const Robot = require("../models/entity/Robot");
 const History = require('../models/entity/History');
 const { ObjectId } = require("mongodb");
 
-const getAllHistory = async (filter) => {
-  console.log('filter', filter);
+let createdHistories = {};
+
+const getAllHistory = async (filter={}) => {
   const pipeline = [];
 
   // Date filter
@@ -88,7 +89,7 @@ const getAllHistory = async (filter) => {
 };
 
 
-const addHistory = async (dataRobot, createdHistories) => {
+const addHistory = async (dataRobot) => {
   const existingRobot = await Robot.findOne({ reference: dataRobot.reference });
   if (!existingRobot) {
     return MsgReponseStatus.builder()

@@ -34,8 +34,8 @@ const Statistiques = () => {
     chartStats: {
       totalPieces: 0,
       palatizedPieces: 0,
-      previousMonth: [0, 0, 0, 0, 0, 0],
-      currentMonth: [0, 0, 0, 0, 0, 0],
+      previousMonth: [0, 0, 0, 0, 0, 0, 0],
+      currentMonth: [0, 0, 0, 0, 0, 0, 0],
       weeklyPreviousMonth: [0, 0, 0, 0],
       weeklyCurrentMonth: [0, 0, 0, 0]
     }
@@ -118,7 +118,7 @@ const Statistiques = () => {
 
       <div className="row1">
         <div className="col-md-3" style={{ margin: "1%", width: "230px", height: "210px" }}>
-          <Card icon="pieces" title=" Pièces totales" value={data.history?.totalPieces} />
+          <Card icon="pieces" title=" Pièces totales" value={data.history?.totalPieces || 0} />
         </div>
         <div className="col-md-3" style={{ margin: "1%", width: "230px", height: "210px" }}>
           <Card icon="pieces" title="Pièces palettisées" value={data.history?.palatizedPieces || 0} />
