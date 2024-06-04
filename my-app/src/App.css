@@ -11,20 +11,67 @@
   --activeItem: #f799a354;
 }
 
- .App{
-  
-  
-     height: 100vh;
-     justify-content: center;
-     align-items: center;
-     font-family: 'Inter', sans-serif;
-    
-  }
- 
-  
-  
-  
- 
-  
- 
- 
+.App {
+
+
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Inter', sans-serif;
+
+}
+
+
+
+
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+
+.add-button {
+  background-color: #e2c6c6; /* Couleur de fond */
+  color: white; /* Couleur du texte */
+  padding: 0.1rem 1rem; /* Espacement intérieur */
+  border-radius: 20px; /* Rayon de bordure */
+  cursor: pointer; /* Curseur au survol */
+}
+
+.add-button:hover {
+  background-color: rgb(186, 186, 182); /* Couleur de fond au survol */
+}
+
+
+.justify-center {
+  justify-content: center;
+}
+
+.gap-5 {
+  gap: 5px;
+}
+
+.gap-10 {
+  gap: 10px;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.my-10 {
+  margin: 10px 0;
+}
+
+.profile {
+  background-color: white;
+  padding: 25px;
+  min-width: 565px;
+}

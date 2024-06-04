@@ -26,22 +26,19 @@ const Tableau = () => {
   const [form] = Form.useForm();
 
 
-  const navigate = useNavigate(); 
-  const location = useLocation(); 
-  const refirectPath = serviceUser.verifyConnectUser(location.pathname); 
-  if ( !refirectPath.state){  navigate(refirectPath.path);}
-
-
-
+  const navigate = useNavigate();
+  const location = useLocation();
+  const refirectPath = serviceUser.verifyConnectUser(location.pathname);
+  if (!refirectPath.state) { navigate(refirectPath.path); }
 
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [searchTerm]);
 
   const fetchData = async () => {
     try {
-      const jsonData = await serviceUser.selectAll();
+      const jsonData = await serviceUser.selectAll({ search: searchTerm });
       setData(jsonData);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -146,6 +143,10 @@ const Tableau = () => {
     }));
   };
 
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
   return (
     <div>
       <h2>Liste des utilisateurs</h2>
@@ -187,77 +188,85 @@ const Tableau = () => {
         </Space>
       )}
       <div>
-      <Modal
-      title={editingUser ? "Modifier un utilisateur" : "Ajouter un utilisateur"}
-      visible={showModal}
-      onCancel={closeModal}
-      footer={null}
-    >
-      <Form
-        form={form}
-        onFinish={handleSubmit}
-        initialValues={newUser}
-        labelCol={{ span: 6 }}
-        wrapperCol={{ span: 18 }}
-        style={{ maxWidth: '600px', margin: '0 auto' }}
-      >
-        <Form.Item
-          label="Nom"
-          name="nom"
-          rules={[{ required: true, message: 'Ce champ est requis' }]}
+        <Modal
+          title={editingUser ? "Modifier un utilisateur" : "Ajouter un utilisateur"}
+          visible={showModal}
+          onCancel={closeModal}
+          footer={null}
         >
-          <Input placeholder="Entrez le nom" />
-        </Form.Item>
-        <Form.Item
-          label="Prénom"
-          name="prenom"
-          rules={[{ required: true, message: 'Ce champ est requis' }]}
-        >
-          <Input placeholder="Entrez le prénom" />
-        </Form.Item>
-        <Form.Item
-          label="Email"
-          name="email"
-          rules={[{ required: true, message: 'Ce champ est requis' }]}
-        >
-          <Input placeholder="Entrez l'email" />
-        </Form.Item>
-        <Form.Item
-          label="Mot de passe"
-          name="password"
-          rules={[{ required: true, message: 'Ce champ est requis' }]}
-        >
-          <Input.Password
-            placeholder="Entrez le mot de passe"
-            iconRender={(visible) =>
-              visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
-            }
+          <Form
+            form={form}
+            onFinish={handleSubmit}
+            initialValues={newUser}
+            labelCol={{ span: 6 }}
+            wrapperCol={{ span: 18 }}
+            style={{ maxWidth: '600px', margin: '0 auto' }}
+          >
+            <Form.Item
+              label="Nom"
+              name="nom"
+              rules={[{ required: true, message: 'Ce champ est requis' }]}
+            >
+              <Input placeholder="Entrez le nom" />
+            </Form.Item>
+            <Form.Item
+              label="Prénom"
+              name="prenom"
+              rules={[{ required: true, message: 'Ce champ est requis' }]}
+            >
+              <Input placeholder="Entrez le prénom" />
+            </Form.Item>
+            <Form.Item
+              label="Email"
+              name="email"
+              rules={[{ required: true, message: 'Ce champ est requis' }]}
+            >
+              <Input placeholder="Entrez l'email" />
+            </Form.Item>
+            <Form.Item
+              label="Mot de passe"
+              name="password"
+              rules={[{ required: true, message: 'Ce champ est requis' }]}
+            >
+              <Input.Password
+                placeholder="Entrez le mot de passe"
+                iconRender={(visible) =>
+                  visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                }
+              />
+            </Form.Item>
+            <Form.Item
+              label="Rôle"
+              name="role"
+              rules={[{ required: true, message: 'Ce champ est requis' }]}
+            >
+              <Select placeholder="Sélectionnez un rôle" defaultValue="Utilisateur">
+                <Select.Option value="Admin">Admin</Select.Option>
+                <Select.Option value="Utilisateur">Utilisateur</Select.Option>
+              </Select>
+            </Form.Item>
+            <Form.Item wrapperCol={{ span: 24, style: { textAlign: 'right' } }}>
+              <Button onClick={closeModal} style={{ marginRight: 8 }}>
+                Annuler
+              </Button>
+              <Button type="primary" htmlType="submit" style={{ backgroundColor: '#007bff', borderColor: '#007bff' }}>
+                Valider
+              </Button>
+            </Form.Item>
+          </Form>
+        </Modal>
+        <div className="flex justify-between search-bar">
+          <button onClick={handleAdd} className="add-button">
+            <MdAdd className="ajouter" />
+            Ajouter
+          </button>
+          <input
+            type="text"
+            placeholder="Rechercher..."
+            value={searchTerm}
+            onChange={handleSearchChange}
           />
-        </Form.Item>
-        <Form.Item
-          label="Rôle"
-          name="role"
-          rules={[{ required: true, message: 'Ce champ est requis' }]}
-        >
-          <Select placeholder="Sélectionnez un rôle" defaultValue="Utilisateur">
-            <Select.Option value="Admin">Admin</Select.Option>
-            <Select.Option value="Utilisateur">Utilisateur</Select.Option>
-          </Select>
-        </Form.Item>
-        <Form.Item wrapperCol={{ span: 24, style: { textAlign: 'right' } }}>
-          <Button onClick={closeModal} style={{ marginRight: 8 }}>
-            Annuler
-          </Button>
-          <Button type="primary" htmlType="submit" style={{ backgroundColor: '#007bff', borderColor: '#007bff' }}>
-            Valider
-          </Button>
-        </Form.Item>
-      </Form>
-    </Modal>
-        <button onClick={handleAdd} className="btn-ajouter">
-          <MdAdd className="ajouter" />
-          Ajouter
-        </button>
+        </div>
       </div>
       <table className="table">
         <thead>

@@ -19,24 +19,20 @@ const Tableau = () => {
   const [form] = Form.useForm();
 
 
-  const navigate = useNavigate(); 
-  const location = useLocation(); 
-  const refirectPath = serviceUser.verifyConnectUser(location.pathname); 
-  if ( !refirectPath.state){  navigate(refirectPath.path);}
+  const navigate = useNavigate();
+  const location = useLocation();
+  const refirectPath = serviceUser.verifyConnectUser(location.pathname);
+  if (!refirectPath.state) { navigate(refirectPath.path); }
 
   useEffect(() => {
     fetchData();
     fetchDataUser();
-
-
-
-  }, []);
-
+  }, [searchTerm]);
 
 
   const fetchData = async () => {
     try {
-      const jsonData = await serviceRobot.selectAll();
+      const jsonData = await serviceRobot.selectAll({ search: searchTerm });
       setData(jsonData);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -132,6 +128,11 @@ const Tableau = () => {
     return true;
   });
 
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+
   return (
     <div>
       <h2>Liste des robots</h2>
@@ -158,95 +159,83 @@ const Tableau = () => {
         </>
       )}
 
-<Modal
-      title={editingRobot ? "Modifier un robot" : "Ajouter un robot"}
-      visible={showModal}
-      onCancel={handleModalClose}
-      footer={null}
-    >
-      <Form
-        form={form}
-        onFinish={handleSubmit}
-        initialValues={editingRobot}
-        labelCol={{ span: 6 }}
-        wrapperCol={{ span: 18 }}
-        style={{ maxWidth: '600px', margin: '0 auto' }}
+      <Modal
+        title={editingRobot ? "Modifier un robot" : "Ajouter un robot"}
+        visible={showModal}
+        onCancel={handleModalClose}
+        footer={null}
       >
-        <Form.Item
-          label="Référence"
-          name="reference"
-          rules={[{ required: true, message: 'Ce champ est requis' }]}
+        <Form
+          form={form}
+          onFinish={handleSubmit}
+          initialValues={editingRobot}
+          labelCol={{ span: 6 }}
+          wrapperCol={{ span: 18 }}
+          style={{ maxWidth: '600px', margin: '0 auto' }}
         >
-          <Input placeholder="Entrez la référence" />
-        </Form.Item>
-        <Form.Item
-          label="Utilisateur"
-          name="userId"
-          rules={[{ required: true, message: 'Ce champ est requis' }]}
-        >
-          <Select placeholder="Sélectionnez un utilisateur">
-            {users
-              .filter(user => user.role !== 'Admin')
-              .map(user => (
-                <Select.Option key={user._id} value={user._id}>
-                  {user.nom} {user.prenom} ({user.email})
-                </Select.Option>
-              ))}
-          </Select>
-        </Form.Item>
-        <Form.Item
-          label="IP Robot"
-          name="ip_robot"
-          rules={[{ required: true, message: 'Ce champ est requis' }]}
-        >
-          <Input placeholder="Entrez l'IP du robot" />
-        </Form.Item>
-        <Form.Item
-          label="Nombre pièces"
-          name="totalPieces"
-          rules={[{ required: true, message: 'Ce champ est requis' }]}
-        >
-          <Input placeholder="Entrez  nombre de pièces" />
-        </Form.Item>
-        <Form.Item wrapperCol={{ span: 24, style: { textAlign: 'right' } }}>
-          <Button onClick={handleModalClose} style={{ marginRight: 8 }}>
-            Annuler
-          </Button>
-          <Button
-            type="primary"
-            htmlType="submit"
-            style={{ backgroundColor: '#007bff', borderColor: '#007bff' }}
+          <Form.Item
+            label="Référence"
+            name="reference"
+            rules={[{ required: true, message: 'Ce champ est requis' }]}
           >
-            Valider
-          </Button>
-        </Form.Item>
-      </Form>
-    </Modal>
+            <Input placeholder="Entrez la référence" />
+          </Form.Item>
+          <Form.Item
+            label="Utilisateur"
+            name="userId"
+            rules={[{ required: true, message: 'Ce champ est requis' }]}
+          >
+            <Select placeholder="Sélectionnez un utilisateur">
+              {users
+                .filter(user => user.role !== 'Admin')
+                .map(user => (
+                  <Select.Option key={user._id} value={user._id}>
+                    {user.nom} {user.prenom} ({user.email})
+                  </Select.Option>
+                ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
+            label="IP Robot"
+            name="ip_robot"
+            rules={[{ required: true, message: 'Ce champ est requis' }]}
+          >
+            <Input placeholder="Entrez l'IP du robot" />
+          </Form.Item>
+          <Form.Item
+            label="Nombre pièces"
+            name="totalPieces"
+            rules={[{ required: true, message: 'Ce champ est requis' }]}
+          >
+            <Input placeholder="Entrez  nombre de pièces" />
+          </Form.Item>
+          <Form.Item wrapperCol={{ span: 24, style: { textAlign: 'right' } }}>
+            <Button onClick={handleModalClose} style={{ marginRight: 8 }}>
+              Annuler
+            </Button>
+            <Button
+              type="primary"
+              htmlType="submit"
+              style={{ backgroundColor: '#007bff', borderColor: '#007bff' }}
+            >
+              Valider
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
 
-      <button onClick={handleAddClick} className="btn-ajouter">
-        <MdAdd className="ajouter" />Ajouter
-      </button>
-
-      <div className="Rechercher">
+      <div className="flex justify-between search-bar">
+        <button onClick={handleAddClick} className="add-button">
+          <MdAdd className="ajouter" />
+          Ajouter
+        </button>
         <input
           type="text"
           placeholder="Rechercher..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="rechercher2"
+          onChange={handleSearchChange}
         />
-        <select
-          value={filterPeriod}
-          onChange={(e) => setFilterPeriod(e.target.value)}
-          className="filter"
-        >
-          <option value="all">Toutes les périodes</option>
-          <option value="lastWeek">Semaine dernière</option>
-          <option value="previousMonth">Mois dernier</option>
-          <option value="lastYear">Année dernière</option>
-        </select>
       </div>
-
       <table className="table">
         <thead>
           <tr className="bg-gray-200">

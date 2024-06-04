@@ -8,41 +8,17 @@ import {
 
 
 } from "@iconscout/react-unicons";
-//Sidebar Data
+
+
 export const ADMIN_SIDE_BAR_DATA = [
-
-    {
-        icon: UilEstate,
-        heading: "Dashboard",
-
-    },
-    {
-        icon: UilUsersAlt,
-        heading: "Liste des utilisateurs"
-    },
-    {
-        icon: UilRobot,
-        heading: 'Liste des robots'
-    },
-
-    {
-        icon: UilClipboardAlt,
-        heading: "Historique",
-
-    },
-    {
-        icon: UilChart,
-        heading: 'Statistiques'
-    },
-
-
+    { heading: 'Dashboard', icon: UilEstate, path: '/Dashboard' },
+    { heading: 'List Users', icon: UilUsersAlt, path: '/ListUsers' },
+    { heading: 'List Robot', icon: UilRobot, path: '/ListRobot' },
+    { heading: 'Historique', icon: UilClipboardAlt, path: '/HistoriquePage' },
+    { heading: 'Statistiques', icon: UilChart, path: '/Statistiques' },
+    // other items
 ];
 
 export const USER_SIDE_BAR_DATA = [
-    {
-        icon: UilChart,
-        heading: 'Statistiques'
-    },
-
-
+    { heading: 'Statistiques', icon: UilChart, path: '/Statistiques' },
 ];

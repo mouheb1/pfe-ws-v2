@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Table } from 'react-bootstrap';
-import 'react-datepicker/dist/react-datepicker.css';
-import './HistoriquePage.css';
 import { serviceHistory, serviceUser } from './services/http-client.service';
 import { useLocation, useNavigate } from 'react-router-dom';
+import DatePicker from 'react-datepicker';
 import moment from 'moment';
+import 'react-datepicker/dist/react-datepicker.css';
+import './HistoriquePage.css';
 
 const HistoriquePage = () => {
   const [historyData, setHistoryData] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [date, setDate] = useState(new Date());
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -17,11 +19,11 @@ const HistoriquePage = () => {
 
   useEffect(() => {
     fetchHistoryData();
-  }, [searchTerm]);
+  }, [searchTerm, date]);
 
   const fetchHistoryData = async () => {
     try {
-      const data = await serviceHistory.selectAll({ search: searchTerm });
+      const data = await serviceHistory.selectAll({ search: searchTerm, date });
       setHistoryData(data);
     } catch (error) {
       console.error('Error fetching history data', error);
@@ -30,7 +32,7 @@ const HistoriquePage = () => {
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
-  };
+  }
 
   const gotToStats = (item) => {
     navigate(`/Statistiques/${item?.robot?.reference}`)
@@ -39,12 +41,20 @@ const HistoriquePage = () => {
   return (
     <div className="history-list">
       <h2>Historique</h2>
-      <div className="flex-end search-bar">
-        <input 
-          type="text" 
-          placeholder="Rechercher..." 
-          value={searchTerm} 
-          onChange={handleSearchChange} 
+      <div className="search-bar">
+        <DatePicker
+          selected={date}
+          onChange={date => setDate(date)}
+          selectsStart
+          startDate={date}
+          endDate={date}
+          placeholderText="Date début"
+        />
+        <input
+          type="text"
+          placeholder="Rechercher..."
+          value={searchTerm}
+          onChange={handleSearchChange}
         />
       </div>
       <Table striped bordered hover>

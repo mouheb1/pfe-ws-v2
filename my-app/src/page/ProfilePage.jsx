@@ -1,17 +1,11 @@
 import React from 'react';
 import './Profile.css';
 import {
-  MDBCol,
-  MDBContainer,
-  MDBRow,
-  MDBCard,
-  MDBCardBody,
   MDBCardImage,
-  MDBBtn // Import du composant de bouton de MDB React UI Kit
 } from 'mdb-react-ui-kit';
 
 
-export default function ProfilePage({ user = {} }) {
+export default function ProfilePage({ user = {}, reference }) {
   const {
     _id,
     nom,
@@ -21,20 +15,18 @@ export default function ProfilePage({ user = {} }) {
     role
   } = user
   return (
-    <MDBCard className="partie1">
+    <div className="profile">
       <div>
         <MDBCardImage
           src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
           alt="avatar"
           className="rounded-circle avatar-image"
         />
-        <p className="text">{[prenom, nom].join(' ')} </p>
+        <p className="text">{[prenom, nom].join(' ')}: {reference} </p>
         <p className="text-success">Robot connecté</p>
       </div>
-      <MDBCardBody>
-        <div style={{ float: 'right' }}>
-
-
+      <div>
+        <div>
           <div className="profile-info">
             <div className="info-row">
               <span className="info-label">Nom</span>
@@ -63,11 +55,7 @@ export default function ProfilePage({ user = {} }) {
 
           </div>
         </div>
-
-
-      </MDBCardBody>
-    </MDBCard>
-
-
+      </div>
+    </div>
   );
 }

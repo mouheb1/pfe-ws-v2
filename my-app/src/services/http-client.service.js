@@ -29,13 +29,22 @@ const getRobotStats = async (query) => {
   }
 };
 
-const getAllHistory = async ({ search }) => {
+const getAllHistory = async ({ search, date } = {}) => {
   try {
-    console.log('search', search);
     let getHistoryUrl = `${process.env.REACT_APP_BACKEND_BASE_URL}/history`
+
     if (search) {
       getHistoryUrl = [getHistoryUrl, `search=${search}`].join('?')
     }
+
+    if (date && search) {
+      getHistoryUrl = [getHistoryUrl, `search=${search}&date=${date}`].join('?')
+    }
+
+    if (date) {
+      getHistoryUrl = [getHistoryUrl, `date=${date}`].join('?')
+    }
+
     const response = await fetch(getHistoryUrl);
     if (!response.ok) { throw new Error('Network response was not ok'); }
     return response.json();
@@ -45,9 +54,13 @@ const getAllHistory = async ({ search }) => {
 };
 
 
-const getAllRobot = async () => {
+const getAllRobot = async ({ search } = {}) => {
   try {
-    const response = await fetch(`${process.env.REACT_APP_BACKEND_BASE_URL}/robots`);
+    let getRobotUrl = `${process.env.REACT_APP_BACKEND_BASE_URL}/robots`
+    if (search) {
+      getRobotUrl = [getRobotUrl, `search=${search}`].join('?')
+    }
+    const response = await fetch(getRobotUrl);
     if (!response.ok) { throw new Error('Network response was not ok'); }
     return await response.json();
   } catch (error) {
@@ -99,9 +112,13 @@ const deleteRobot = async (id) => {
   }
 };
 
-const getAllUsers = async () => {
+const getAllUsers = async ({ search } = {} = {}) => {
   try {
-    const response = await fetch(`${process.env.REACT_APP_BACKEND_BASE_URL}/users`);
+    let getUsersUrl = `${process.env.REACT_APP_BACKEND_BASE_URL}/users`
+    if (search) {
+      getUsersUrl = [getUsersUrl, `search=${search}`].join('?')
+    }
+    const response = await fetch(getUsersUrl);
     if (!response.ok) { throw new Error('Network response was not ok'); }
     return await response.json();
   } catch (error) {

@@ -12,10 +12,32 @@ import ExportPDFButton from './Charts/ExportPDFButton';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from 'moment';
 
+function convertSecondsToHHMM(seconds) {
+
+  if (!seconds) {
+    return 0
+  }
+
+  if (seconds < 60) {
+    return [seconds, 'sec'].join(' ')
+  }
+
+  // Calculate the hours and minutes from seconds
+  const duration = moment.duration(seconds, 'seconds');
+  const hours = Math.floor(duration.asHours());
+  const minutes = duration.minutes();
+
+  // Format hours and minutes to HH:MM
+  const formattedTime = moment({ hour: hours, minute: minutes }).format('HH:mm');
+
+  return formattedTime
+}
+
 const Statistiques = () => {
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [options, setOptions] = useState({});
+  const [currentUser, setCurrentUser] = useState({});
   const [refetch, setRefetch] = useState(false);
 
   const { reference } = useParams();
@@ -44,11 +66,12 @@ const Statistiques = () => {
   useEffect(() => {
     let localOptions = {};
 
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    setCurrentUser(user)
     if (reference) {
       setOptions({ reference });
       localOptions = { reference };
     } else {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
       setOptions({ userId: user._id });
       localOptions = { userId: user._id };
     }
@@ -94,27 +117,29 @@ const Statistiques = () => {
   return (
     <div>
       <h2>Statistiques</h2>
-      <div className="search-bar">
-        <div>
-          <DatePicker
-            selected={startDate}
-            onChange={date => setStartDate(date)}
-            selectsStart
-            startDate={startDate}
-            endDate={endDate}
-            placeholderText="Date début"
-          />
-          <DatePicker
-            selected={endDate}
-            onChange={date => setEndDate(date)}
-            selectsEnd
-            startDate={startDate}
-            endDate={endDate}
-            placeholderText="Date fin"
-          />
+      {currentUser?.role === 'Admin' &&
+        <div className="search-bar">
+          <div>
+            <DatePicker
+              selected={startDate}
+              onChange={date => setStartDate(date)}
+              selectsStart
+              startDate={startDate}
+              endDate={endDate}
+              placeholderText="Date début"
+            />
+            <DatePicker
+              selected={endDate}
+              onChange={date => setEndDate(date)}
+              selectsEnd
+              startDate={startDate}
+              endDate={endDate}
+              placeholderText="Date fin"
+            />
+          </div>
+          <ExportPDFButton data={data.chartStats} />
         </div>
-        <ExportPDFButton data={data.chartStats} />
-      </div>
+      }
 
       <div className="row1">
         <div className="col-md-3" style={{ margin: "1%", width: "230px", height: "210px" }}>
@@ -124,13 +149,13 @@ const Statistiques = () => {
           <Card icon="pieces" title="Pièces palettisées" value={data.history?.palatizedPieces || 0} />
         </div>
         <div className="col-md-3" style={{ margin: "1%", width: "230px", height: "210px" }}>
-          <Card icon="pieces" title="Temps de fonctionnement" value={`${data.history?.totalExecutionDuration || 0} sec`} />
+          <Card icon="pieces" title="Temps de fonctionnement" value={convertSecondsToHHMM(data.history?.totalExecutionDuration)} />
         </div>
         <div className="col-md-3" style={{ margin: "1%", width: "230px", height: "210px" }}>
           <Card icon="pieces" title=" palette complet" value={`${data.history?.completedPallets || 0}`} />
         </div>
         <div className="col-md-3" style={{ margin: "1%", width: "230px", height: "210px" }}>
-          <Card icon="pieces" title="Temps de palettisation" value={`${data.history?.palatizeExecutionDuration || 0} sec`} />
+          <Card icon="pieces" title="Temps de palettisation" value={convertSecondsToHHMM(data.history?.palatizeExecutionDuration)} />
         </div>
         <div className="col-md-3" style={{ margin: "1%", width: "230px", height: "210px" }}>
           <Card icon="pieces" title="Temps de prise" value={`${data.history?.timeToPickup || 7} sec`} />
@@ -142,13 +167,23 @@ const Statistiques = () => {
           <Card icon="pieces" title="Ordre de Fabrication" value={` OF-1000-10000`} />
         </div>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
-        <PieChart totalPieces={data.chartStats.totalPieces} palatizedPieces={data.chartStats.palatizedPieces} />
-        <ColumnComponent data={{ previousMonth: data.chartStats.previousMonth, currentMonth: data.chartStats.currentMonth }} />
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '10px' }}>
-        <AreaComponent data={{ previousMonth: data.chartStats.weeklyPreviousMonth, currentMonth: data.chartStats.weeklyCurrentMonth }} />
-        <ProfilePage user={data.user} />
+      <div className='flex flex-col gap-5'>
+        <div className='flex justify-center gap-5'>
+          <div className='flex-1'>
+            <PieChart totalPieces={data.chartStats.totalPieces} palatizedPieces={data.chartStats.palatizedPieces} />
+          </div>
+          <div className='flex-1'>
+            <ColumnComponent data={{ previousMonth: data.chartStats.previousMonth, currentMonth: data.chartStats.currentMonth }} />
+          </div>
+        </div>
+        <div className='flex justify-center gap-5'>
+          <div className='flex-1'>
+            <AreaComponent data={{ previousMonth: data.chartStats.weeklyPreviousMonth, currentMonth: data.chartStats.weeklyCurrentMonth }} />
+          </div>
+          <div className='flex-1'>
+            <ProfilePage user={data.user} reference={reference} />
+          </div>
+        </div>
       </div>
     </div>
   );
