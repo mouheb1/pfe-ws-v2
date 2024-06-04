@@ -4,45 +4,45 @@ const User = require('../models/entity/User');
 exports.SignIn = async (req, res) => {
     // Vérifier si l'utilisateur existe déjà avec le même nom, email, numéro de robot ou numéro de téléphone
     try {
-     const existingUser = await User.findOne({
-         $and: [
-             { email: req.body.email },
-             { password: req.body.password }
-         ]
-     });
- 
-     // Si l'utilisateur existe déjà, renvoyer une erreur
-     if (!existingUser) {
-         return res.status(400).json({ message: "Verifier si l'email ou bien password bien saisie!" });
-     }
-     res.status(200).json(existingUser);
- } catch (error) { 
-     res.status(400).json({ message: error.message });
- }
- };
+        const existingUser = await User.findOne({
+            $and: [
+                { email: req.body.email },
+                { password: req.body.password }
+            ]
+        });
 
- exports.SignUp = async (req, res) => {
-   // Vérifier si l'utilisateur existe déjà avec le même  email
-   try {
-    const existingUser = await User.findOne({
-        $or: [
-            { email: req.body.email }
-        ]
-    });
-
-    // Si l'utilisateur existe déjà, renvoyer une erreur
-    if (existingUser) {
-        return res.status(400).json({ message: "L'utilisateur existe déjà avec ces informations." });
+        // Si l'utilisateur existe déjà, renvoyer une erreur
+        if (!existingUser) {
+            return res.status(400).json({ message: "Verifier si l'email ou bien password bien saisie!" });
+        }
+        res.status(200).json(existingUser);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
     }
+};
 
-    // Si l'utilisateur n'existe pas, créer un nouvel utilisateur
-    const user = new User({nom : req.body.nom,prenom: req.body.prenom,password: req.body.password , email: req.body.email, role : req.body.role });
+exports.SignUp = async (req, res) => {
+    // Vérifier si l'utilisateur existe déjà avec le même  email
+    try {
+        const existingUser = await User.findOne({
+            $or: [
+                { email: req.body.email }
+            ]
+        });
 
-    const newUser = await user.save();
-    res.status(201).json(newUser);
-} catch (error) { 
-    res.status(400).json({ message: error.message });
-}
+        // Si l'utilisateur existe déjà, renvoyer une erreur
+        if (existingUser) {
+            return res.status(400).json({ message: "L'utilisateur existe déjà avec ces informations." });
+        }
+
+        // Si l'utilisateur n'existe pas, créer un nouvel utilisateur
+        const user = new User({ nom: req.body.nom, prenom: req.body.prenom, password: req.body.password, email: req.body.email, role: req.body.role });
+
+        const newUser = await user.save();
+        res.status(201).json(newUser);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
 };
 
 
@@ -50,11 +50,31 @@ exports.SignIn = async (req, res) => {
 // Récupérer tous les utilisateurs
 exports.getUsers = async (req, res) => {
     try {
-        const users = await User.find();
+        let filter = {}
+
+        if (req.query) {
+            filter = {
+                ...req.query
+            }
+        }
+
+        let pipeline = {}
+        if (filter.search) {
+            const searchRegex = new RegExp(filter.search, 'i');
+            pipeline = ({
+                $or: [
+                    { 'email': searchRegex },
+                    { 'nom': searchRegex },
+                    { 'prenom': searchRegex },
+                    { 'role': searchRegex },
+                ]
+            });
+        }
+        const users = await User.find(pipeline);
         res.json(users);
     } catch (error) {
         res.status(500).json({ message: error.message });
-        
+
     }
 };
 
@@ -109,16 +129,16 @@ exports.createUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
     try {
-      const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-      if (!updatedUser) {
-        return res.status(404).send('User not found');
-      }
-      res.send(updatedUser);
+        const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+        if (!updatedUser) {
+            return res.status(404).send('User not found');
+        }
+        res.send(updatedUser);
     } catch (error) {
-      console.error('Error:', error); // Log toute erreur
-      res.status(400).send(error);
+        console.error('Error:', error); // Log toute erreur
+        res.status(400).send(error);
     }
-  };
+};
 
 
 

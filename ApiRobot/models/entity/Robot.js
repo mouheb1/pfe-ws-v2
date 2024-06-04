@@ -4,8 +4,7 @@ const mongoose = require('mongoose');
 
 const robotSchema = new mongoose.Schema({
   _id: {
-    type: mongoose.Types.ObjectId,
-    default: new ObjectId()
+    type: mongoose.Types.ObjectId
   },
   reference: {
     type: String,

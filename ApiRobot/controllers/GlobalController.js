@@ -63,6 +63,7 @@ exports.getrobotStats = async (req, res) => {
       robotId: robot._id,
     };
 
+    /*
     if (startDate && endDate) {
       historyFilter.$and = [
         { startExecutionAt: { 
@@ -71,15 +72,15 @@ exports.getrobotStats = async (req, res) => {
         } }
       ];
     }
-
+    */
     const [user, histories, dailyStats, weeklyStats] = await Promise.all([
       User.findById(robot.userId),
-      History.find(), // historyFilter
+      History.find(historyFilter), // historyFilter
       getDailyStats(robot),
       getWeeklyStats(robot)
     ])
 
-console.log('histories', histories);
+
     if (!histories || !histories.length) {
       return res.status(200).json({
         history: {
@@ -108,7 +109,7 @@ console.log('histories', histories);
     }, 0)
 
     const [history] = histories
-
+    console.log('history', history);
     history.palatizedPieces = palatizedPieces
 
     return res.status(200).json({

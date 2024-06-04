@@ -3,6 +3,7 @@ const MsgReponseStatus = require("../models/Response/MessageResponse");
 const Robot = require("../models/entity/Robot");
 const History = require('../models/entity/History');
 const { ObjectId } = require("mongodb");
+const moment = require("moment");
 
 let createdHistories = {};
 
@@ -10,11 +11,14 @@ const getAllHistory = async (filter={}) => {
   const pipeline = [];
 
   // Date filter
-  if (filter.startDate && filter.endDate) {
+  if (filter.date) {
+    const startDate = moment(filter.date).startOf('day').toDate();
+    const endDate = moment(filter.date).endOf('day').toDate();
+
     pipeline.push({
       $match: {
-        startExecutionAt: { $gte: new Date(filter.startDate) },
-        endExecutionAt: { $lte: new Date(filter.endDate) },
+        startExecutionAt: { $gte: startDate },
+        endExecutionAt: { $lte: endDate },
       },
     });
   }
@@ -96,7 +100,7 @@ const addHistory = async (dataRobot) => {
       .setTitle("Error Message")
       .setDatestamp(new Date())
       .setStatus(ResponseStatus.ERROR)
-      .setMessage("cannot find existing robot")
+      .setMessage("cannot find a robot")
       .build();
   }
 

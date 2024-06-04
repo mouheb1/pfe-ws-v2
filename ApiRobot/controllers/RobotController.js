@@ -1,14 +1,25 @@
 const Robot = require('../models/entity/Robot');
 const History = require('../models/entity/History');
 const { historyService } = require('../services/history.service');
+const { ObjectId } = require('mongodb');
 // recuperer les  données depuis mongo DB
 exports.getRobots = async (req, res) => {
     try {
-        const robots = await Robot.aggregate([ //agregé (5oudh)les données stockées depuis mongodb
+        let filter = {}
+
+        if (req.query) {
+            filter = {
+                ...req.query
+            }
+        }
+        const pipeline = []
+
+        // Agregé les données stockées depuis MongoDB
+        pipeline.push(
             {
-                $lookup: { // joindre(da5el) les données depuis utilisateurs
+                $lookup: { // Joindre les données depuis utilisateurs
                     from: 'users',
-                    localField: 'userId',// creer un clé etrangére
+                    localField: 'userId', // Créer une clé étrangère
                     foreignField: '_id',
                     as: 'user'
                 }
@@ -16,15 +27,7 @@ exports.getRobots = async (req, res) => {
             {
                 $unwind: {
                     path: '$user',
-                    preserveNullAndEmptyArrays: true // ajouter robot (modal) 5dhina menha nom , prenom , email 3ibara tableau wost tableau
-                    /*{
-                        "classId": "class1",
-                         "teacher": "Mme Dupont",
-                        "students": [
-                                 { "name": "Alice", "age": 10 },
-                                 { "name": "Bob", "age": 11 }
-                                ]
-                    }*/
+                    preserveNullAndEmptyArrays: true // Ajouter robot (modal), nom, prénom, email sous forme de tableau
                 }
             },
             {
@@ -37,7 +40,7 @@ exports.getRobots = async (req, res) => {
             },
             {
                 $addFields: {
-                    totalPiecesPalatize: { //calculer la somme des piéces palatisée de chaque robot w 7otha fel historique
+                    totalPiecesPalatize: { // Calculer la somme des pièces palatisée de chaque robot et les ajouter dans historique
                         $sum: {
                             $map: {
                                 input: "$histories",
@@ -49,7 +52,7 @@ exports.getRobots = async (req, res) => {
                 }
             },
             {
-                $project: { //projection des données 
+                $project: { // Projection des données 
                     "reference": 1,
                     "ip_robot": 1,
                     "totalPieces": 1,
@@ -62,9 +65,26 @@ exports.getRobots = async (req, res) => {
                     "user.role": 1
                 }
             }
-        ]);
+        );
 
-        
+        // Search filter
+        if (filter.search) {
+            const searchRegex = new RegExp(filter.search, 'i');
+            pipeline.push({
+                $match: {
+                    $or: [
+                        { 'reference': searchRegex },
+                        { 'ip_robot': searchRegex },
+                        { 'user.nom': searchRegex },
+                        { 'user.prenom': searchRegex },
+                        { 'user.email': searchRegex }
+                    ]
+                }
+            });
+        }
+
+        const robots = await Robot.aggregate(pipeline);
+
         res.json(robots);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -88,18 +108,13 @@ exports.getRobotById = async (req, res) => {
 exports.createRobot = async (req, res) => {
     try {
         const existingRobot = await Robot.findOne({ reference: req.body.reference });
-        
-        console.log({
-            reference: req.body.reference,
-            userId: req.body.userId,
-            ip_robot: req.body.ip_robot,
-            totalPieces: req.body.totalPieces
-        });
+
         if (existingRobot) {
             return res.status(400).json({ message: "Un autre robot existe déjà avec cette référence." });
         }
 
         const robot = new Robot({
+            _id: new ObjectId(),
             reference: req.body.reference,
             userId: req.body.userId,
             ip_robot: req.body.ip_robot,
@@ -113,8 +128,6 @@ exports.createRobot = async (req, res) => {
         res.status(400).json({ message: "Une erreur s'est produite lors de la création du robot." });
     }
 };
-
-
 
 // Mettre à jour un robot par son ID
 exports.updateRobot = async (req, res) => {
